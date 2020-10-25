@@ -2,6 +2,7 @@ import java.util.Scanner;
 
 public class Main {
     static final Scanner scanner = new Scanner(System.in);
+    static final char[][] field = new char[3][3];
 
     public static void main(String[] args) {
         /* Stage 1: Welcome to the battlefield! */
@@ -12,12 +13,13 @@ public class Main {
         /* Stage 2: The user is the game master */
         String cells;
         while (true) {
-            System.out.print("Enter cells: ");
+             System.out.print("Enter cells: ");
+            // get input cells
             cells = scanner.nextLine();
-            if (cells.length() != 9) {
-               System.out.println("Invalid input, please try again.");
+            if (!validInput(cells)) {
+                System.out.println("Invalid input, please try again.");
             } else {
-               break;
+                break;
             }
         }
 
@@ -28,130 +30,117 @@ public class Main {
         // System.out.println("---------");
 
         /* Stage 3: What's up on the field? */
-        /* populate field with user input and count appearances of X and O */
-        final int gameSize = 3;
-        int index = 0;
-        char[][] field = new char[gameSize][gameSize];
-        int xCount = 0;
-        int oCount = 0;
-        int spaceCount = 0;
-        boolean validGame = true;
+        setField(cells);
+        printField();
+        System.out.println(getGameStatus());
+    }
 
-        for (int i = 0; i < gameSize; i++) {
-            for (int j = 0; j < gameSize; j++) {
-                char current = cells.charAt(index++);
-                switch (current) {
-                    case 'X':
-                        xCount++;
-                        break;
-                    case 'O':
-                        oCount++;
-                        break;
-                    case '_':
-                        spaceCount++;
-                        break;
-                    default:
-                        validGame = false;
-                }
-                field[i][j] = current;
+    /* validate input cells - to be removed in stage 5*/
+    private static boolean validInput(String cells) {
+        boolean isValid = true;
+        String validChars = "XO_";
+
+        for (int i = 0; i < cells.length(); i++) {
+            if (validChars.indexOf(cells.charAt(i)) < 0) {
+                isValid = false;
             }
         }
 
-        /* print field */
+        isValid &= cells.length() == 9;
+        return isValid;
+    }
+
+    /* set field */
+    private static void setField(String cells) {
+        int index = 0;
+
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                field[i][j] = cells.charAt(index++);
+            }
+        }
+    }
+
+    /* print field */
+    private static void printField() {
         System.out.println("---------");
-        for (int i = 0; i < gameSize; i++) {
+        for (int i = 0; i < 3; i++) {
             System.out.print("|");
-            for (int j = 0; j < gameSize; j++) {
+            for (int j = 0; j < 3; j++) {
                 System.out.print(" " + field[i][j]);
             }
             System.out.println(" |");
         }
         System.out.println("---------");
+    }
 
-        /* check game validity: count check */
-        validGame &= Math.abs(xCount - oCount) <= 1;
+    /* calculate counts */
+    private static int getCharCount(char c) {
+        int count = 0;
 
-        if (!validGame) {
-            System.out.println("Impossible");
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (field[i][j] == c) {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+    /* check rows */
+    private static boolean checkRows(char c) {
+        for (int i = 0; i < 3; i++) {
+            if (field[i][0] == field[i][1] && field[i][1] == field[i][2] && field[i][0] == c) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /* check columns */
+    private static boolean checkColumns(char c) {
+        for (int i = 0; i < 3; i++) {
+            if (field[0][i] == field[1][i] && field[1][i] == field[2][i] && field[0][i] == c) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /* check main diagonal */
+    private static boolean checkDiag(char c) {
+        return field[0][0] == field[1][1] && field[1][1] == field[2][2] && field[1][1] == c;
+
+    }
+
+    /* check cross diagonal */
+    private static boolean checkCrossDiag(char c) {
+        return field[0][2] == field[1][1] && field[1][1] == field[2][0] && field[1][1] == c;
+    }
+
+    /* check game and get result */
+    private static String getGameStatus() {
+        int xCount = getCharCount('X');
+        int oCount = getCharCount('O');
+        int _Count = getCharCount('_');
+
+        boolean xWins = checkRows('X') || checkColumns('X') || checkDiag('X') || checkCrossDiag('X');
+        boolean oWins = checkRows('O') || checkColumns('O') || checkDiag('O') || checkCrossDiag('O');
+
+        if (Math.abs(xCount - oCount) > 1 || (xWins && oWins)) {
+            return "Impossible";
+        } else if (xWins) {
+            return "X wins";
+        } else if (oWins) {
+            return "O wins";
+        } else if (_Count > 0) {
+            return "Game not finished";
         } else {
-            /* analyze field */
-            char winner = 0;
-
-            // check rows (reuse `validGame` variable, it's not needed)
-            for (int i = 0; i < gameSize && validGame; i++) {
-                if (field[i][0] == field[i][1] && field[i][1] == field[i][2] && field[i][0] != '_') {
-                    // no other checks needed since X (or O) winning 2 rows is handled by count check
-                    if (winner != 0) {
-                        validGame = false;
-                    } else {
-                        winner = field[i][0];
-                    }
-                }
-            }
-
-            // check columns only if game is valid
-            for (int i = 0; i < gameSize && validGame; i++) {
-                if (field[0][i] == field[1][i] && field[1][i] == field[2][i] && field[0][i] != '_') {
-                    // Check case when winner won both a row and a column (not impossible)
-                    // winner != field[0][i] condition makes sure the special cases:
-                    // { {'O', 'X', 'O'}, {'X', 'X', 'X'}, {'O', 'X', 'O'} } and
-                    // { {'X', 'O', 'O'}, {'X', 'O', 'O'}, {'X', 'X', 'X'} }
-                    // are not considered 'Impossible' since they can happen
-                    // if the opponent picks moves randomly
-                    if (winner != 0 && winner != field[0][i]) {
-                        validGame = false;
-                    } else {
-                        winner = field[0][i];
-                    }
-                }
-            }
-
-            // check diagonal only if game is valid
-            boolean winDiag = field[0][0] == field[1][1] && field[1][1] == field[2][2] && field[0][0] != '_';
-
-            // Check case when winner won both a row/ column and main diagonal (not impossible)
-            // winner != field[1][1] condition makes sure the special cases like:
-            // { {'X', 'X', 'X'}, {'O', 'X', 'O'}, {'O', 'O', 'X'} } (row + diag) and
-            // { {'X', 'O', 'O'}, {'X', 'X', 'O'}, {'X', 'O', 'X'} } (col + diag)
-            // are not considered 'Impossible' since they can happen
-            // if the opponent picks moves randomly
-            if (validGame && winDiag) {
-                if (winner != 0 && winner != field[1][1]) {
-                    validGame = false;
-                } else {
-                    winner = field[1][1];
-                }
-            }
-
-            // check cross diagonal only if game is valid
-            boolean winCrossDiag = field[0][2] == field[1][1] && field[1][1] == field[2][0] && field[0][2] != '_';
-
-            // Check case when winner won both a row/ column and cross diagonal (not impossible)
-            // winner != field[1][1] condition makes sure the special cases like:
-            // { {'X', 'X', 'X'}, {'O', 'X', 'O'}, {'X', 'O', 'O'} } (row + crossDiag) and
-            // { {'X', 'O', 'X'}, {'X', 'X', 'O'}, {'X', 'O', 'O'} } (column + crossDiag)
-            // are not considered 'Impossible' since they can happen
-            // if the opponent picks moves randomly
-            if (validGame && winCrossDiag) {
-                if (winner != 0 && winner != field[1][1]) {
-                    validGame = false;
-                } else {
-                    winner = field[1][1];
-                }
-            }
-
-            if (!validGame) {
-                System.out.println("Impossible");
-            } else {
-                if (winner != 0) {
-                    System.out.println(winner + " wins");
-                }
-                else if (spaceCount > 0) {
-                    System.out.println("Game not finished");
-                } else {
-                    System.out.println("Draw");
-                }
-            }
+            return "Draw";
         }
     }
 }
