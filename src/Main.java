@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.InputMismatchException;
 
 public class Main {
     static final Scanner scanner = new Scanner(System.in);
@@ -13,7 +14,7 @@ public class Main {
         /* Stage 2: The user is the game master */
         String cells;
         while (true) {
-             System.out.print("Enter cells: ");
+            System.out.print("Enter cells: ");
             // get input cells
             cells = scanner.nextLine();
             if (!validInput(cells)) {
@@ -32,13 +33,48 @@ public class Main {
         /* Stage 3: What's up on the field? */
         setField(cells);
         printField();
-        System.out.println(getGameStatus());
+        // System.out.println(getGameStatus());
+
+        /* Stage 4: First move! */
+        while (true) {
+            System.out.print("Enter the coordinates: ");
+            int inputRow, inputCol;
+
+            try {
+                inputCol = scanner.nextInt();
+                inputRow = scanner.nextInt();
+            } catch (InputMismatchException e) {
+                System.out.println("You should enter numbers!");
+                // Since the nextInt() method won't consume any input which is
+                // not an int, and we need the scanner to move the cursor forward
+                // Else, it will keep considering erroneous input (say "one")
+                scanner.nextLine();
+                continue;
+            }
+
+            if (validCoordinates(inputRow, inputCol)) {
+                int row = getFieldRow(inputRow);
+                int col = getFieldCol(inputCol);
+
+                // check cell occupancy
+                if (field[row][col] == '_') {
+                    field[row][col] = 'X';
+                    break;
+                } else {
+                    System.out.println("This cell is occupied! Choose another one!");
+                }
+            } else {
+                System.out.println("Coordinates should be from 1 to 3!");
+            }
+        }
+
+        printField();
     }
 
     /* validate input cells - to be removed in stage 5*/
     private static boolean validInput(String cells) {
         boolean isValid = true;
-        String validChars = "XO_";
+        String validChars = "XO_"; // check for allowed characters
 
         for (int i = 0; i < cells.length(); i++) {
             if (validChars.indexOf(cells.charAt(i)) < 0) {
@@ -131,6 +167,7 @@ public class Main {
         boolean xWins = checkRows('X') || checkColumns('X') || checkDiag('X') || checkCrossDiag('X');
         boolean oWins = checkRows('O') || checkColumns('O') || checkDiag('O') || checkCrossDiag('O');
 
+        // `field` is invalid if `xCount` and `oCount` differ by more than 1 or both 'X' and 'O' win
         if (Math.abs(xCount - oCount) > 1 || (xWins && oWins)) {
             return "Impossible";
         } else if (xWins) {
@@ -142,5 +179,17 @@ public class Main {
         } else {
             return "Draw";
         }
+    }
+
+    private static int getFieldRow(int row) {
+        return Math.abs(3 - row);
+    }
+
+    private static int getFieldCol(int col) {
+        return col - 1;
+    }
+
+    private static boolean validCoordinates(int row, int col) {
+        return row >= 1 && row <= 3 && col >= 1 && col <= 3;
     }
 }
