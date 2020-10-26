@@ -72,6 +72,7 @@ public class Main {
         // printField();
 
         /* Stage 5: Fight! */
+        printManual();
         initField();
         printField();
 
@@ -137,7 +138,26 @@ public class Main {
     //     return isValid;
     // }
 
-    /* init field */
+    /* Print instructions for players */
+    private static void printManual() {
+        System.out.println("Welcome to Tic Tac Toe on the console!");
+        System.out.println();
+        System.out.println("Instructions");
+        System.out.println("-------------");
+        System.out.println("1. The game starts as an empty field.");
+        System.out.println("2. To make a move you will need to enter coordinates.");
+        System.out.println("3. Suppose the bottom left cell has the coordinates (1, 1).");
+        System.out.println("4. And, the top right cell has the coordinates (3, 3).");
+        System.out.println("5. For reference, here's a table showing cell coordinates:");
+        System.out.println();
+        System.out.println("(1, 3)\t(2, 3)\t(3, 3)");
+        System.out.println("(1, 2)\t(2, 2)\t(3, 2)");
+        System.out.println("(1, 1)\t(2, 1)\t(3, 1)");
+        System.out.println();
+        System.out.println("The game will start now. Happy gaming!");
+    }
+
+    /* initialize field */
     private static void initField() {
         for (char[] vector: field) {
             Arrays.fill(vector, ' ');
@@ -146,6 +166,7 @@ public class Main {
 
     /* print field */
     private static void printField() {
+        System.out.println();
         System.out.println("---------");
         for (int i = 0; i < 3; i++) {
             System.out.print("|");
@@ -155,6 +176,7 @@ public class Main {
             System.out.println(" |");
         }
         System.out.println("---------");
+        System.out.println();
     }
 
     /* calculate counts */
