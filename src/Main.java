@@ -1,5 +1,6 @@
 import java.util.Scanner;
 import java.util.InputMismatchException;
+import java.util.Arrays;
 
 public class Main {
     static final Scanner scanner = new Scanner(System.in);
@@ -12,17 +13,17 @@ public class Main {
         // System.out.println("O X O");
 
         /* Stage 2: The user is the game master */
-        String cells;
-        while (true) {
-            System.out.print("Enter cells: ");
-            // get input cells
-            cells = scanner.nextLine();
-            if (!validInput(cells)) {
-                System.out.println("Invalid input, please try again.");
-            } else {
-                break;
-            }
-        }
+        // String cells;
+        // while (true) {
+        //      System.out.print("Enter cells: ");
+        //     // get input cells
+        //     cells = scanner.nextLine();
+        //     if (!validInput(cells)) {
+        //         System.out.println("Invalid input, please try again.");
+        //     } else {
+        //         break;
+        //     }
+        // }
 
         // System.out.println("---------");
         // System.out.println("| " + cells.charAt(0) + " " + cells.charAt(1) + " " + cells.charAt(2) + " |");
@@ -31,69 +32,115 @@ public class Main {
         // System.out.println("---------");
 
         /* Stage 3: What's up on the field? */
-        setField(cells);
-        printField();
+        // setField(cells);
+        // printField();
         // System.out.println(getGameStatus());
 
         /* Stage 4: First move! */
-        while (true) {
-            System.out.print("Enter the coordinates: ");
-            int inputRow, inputCol;
+        // while (true) {
+        //     System.out.print("Enter the coordinates: ");
+        //     int inputRow, inputCol;
 
-            try {
-                inputCol = scanner.nextInt();
-                inputRow = scanner.nextInt();
-            } catch (InputMismatchException e) {
-                System.out.println("You should enter numbers!");
-                // Since the nextInt() method won't consume any input which is
-                // not an int, and we need the scanner to move the cursor forward
-                // Else, it will keep considering erroneous input (say "one")
-                scanner.nextLine();
-                continue;
+        //     try {
+        //         inputCol = scanner.nextInt();
+        //         inputRow = scanner.nextInt();
+        //     } catch (InputMismatchException e) {
+        //         System.out.println("You should enter numbers!");
+        //         // Since the nextInt() method won't consume any input which is
+        //         // not an int, and we need the scanner to move the cursor forward
+        //         // Else, it will keep considering erroneous input (say "one")
+        //         scanner.nextLine();
+        //         continue;
+        //     }
+
+        //     if (validCoordinates(inputRow, inputCol)) {
+        //         int row = getFieldRow(inputRow);
+        //         int col = getFieldCol(inputCol);
+
+        //         // check cell occupancy
+        //         if (field[row][col] == '_') {
+        //             field[row][col] = 'X';
+        //             break;
+        //         } else {
+        //             System.out.println("This cell is occupied! Choose another one!");
+        //         }
+        //     } else {
+        //         System.out.println("Coordinates should be from 1 to 3!");
+        //     }
+        // }
+
+        // printField();
+
+        /* Stage 5: Fight! */
+        initField();
+        printField();
+
+        int turn = 0;
+        boolean gameOver = false;
+
+        while (!gameOver) {
+            while (true) {
+                System.out.print("Enter the coordinates: ");
+                int inputRow, inputCol;
+
+                try {
+                    inputCol = scanner.nextInt();
+                    inputRow = scanner.nextInt();
+                } catch (InputMismatchException e) {
+                    System.out.println("You should enter numbers!");
+                    // Since the nextInt() method won't consume any input which is
+                    // not an int, and we need the scanner to move the cursor forward
+                    // Else, it will keep considering erroneous input (say "one")
+                    scanner.nextLine();
+                    continue;
+                }
+
+                if (validCoordinates(inputRow, inputCol)) {
+                    int row = getFieldRow(inputRow);
+                    int col = getFieldCol(inputCol);
+
+                    // check cell occupancy
+                    if (field[row][col] == ' ') {
+                        field[row][col] = getPlayer(turn++);
+                        break;
+                    } else {
+                        System.out.println("This cell is occupied! Choose another one!");
+                    }
+                } else {
+                    System.out.println("Coordinates should be from 1 to 3!");
+                }
             }
 
-            if (validCoordinates(inputRow, inputCol)) {
-                int row = getFieldRow(inputRow);
-                int col = getFieldCol(inputCol);
+            printField();
+            String gameStatus = getGameStatus();
+            gameOver = isGameOver(gameStatus);
 
-                // check cell occupancy
-                if (field[row][col] == '_') {
-                    field[row][col] = 'X';
-                    break;
-                } else {
-                    System.out.println("This cell is occupied! Choose another one!");
-                }
-            } else {
-                System.out.println("Coordinates should be from 1 to 3!");
+            if (gameOver) {
+                System.out.println(gameStatus);
             }
         }
 
-        printField();
     }
 
     /* validate input cells - to be removed in stage 5*/
-    private static boolean validInput(String cells) {
-        boolean isValid = true;
-        String validChars = "XO_"; // check for allowed characters
+    // private static boolean validInput(String cells) {
+    //     boolean isValid = true;
+    //     String validChars = "XO_"; // check for allowed characters
 
-        for (int i = 0; i < cells.length(); i++) {
-            if (validChars.indexOf(cells.charAt(i)) < 0) {
-                isValid = false;
-            }
-        }
+    //     for (int i = 0; i < cells.length(); i++) {
+    //         if (validChars.indexOf(cells.charAt(i)) < 0) {
+    //             isValid = false;
+    //         }
+    //     }
 
-        isValid &= cells.length() == 9;
-        return isValid;
-    }
+    //     isValid &= cells.length() == 9;
+    //     return isValid;
+    // }
 
-    /* set field */
-    private static void setField(String cells) {
-        int index = 0;
-
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 3; j++) {
-                field[i][j] = cells.charAt(index++);
-            }
+    /* init field */
+    private static void initField() {
+        for (char[] vector: field) {
+            Arrays.fill(vector, ' ');
         }
     }
 
@@ -148,13 +195,13 @@ public class Main {
     }
 
     /* check main diagonal */
-    private static boolean checkDiag(char c) {
+    private static boolean checkDiagonal(char c) {
         return field[0][0] == field[1][1] && field[1][1] == field[2][2] && field[1][1] == c;
 
     }
 
     /* check cross diagonal */
-    private static boolean checkCrossDiag(char c) {
+    private static boolean checkCrossDiagonal(char c) {
         return field[0][2] == field[1][1] && field[1][1] == field[2][0] && field[1][1] == c;
     }
 
@@ -162,10 +209,10 @@ public class Main {
     private static String getGameStatus() {
         int xCount = getCharCount('X');
         int oCount = getCharCount('O');
-        int _Count = getCharCount('_');
+        int spaceCount = getCharCount(' ');
 
-        boolean xWins = checkRows('X') || checkColumns('X') || checkDiag('X') || checkCrossDiag('X');
-        boolean oWins = checkRows('O') || checkColumns('O') || checkDiag('O') || checkCrossDiag('O');
+        boolean xWins = checkRows('X') || checkColumns('X') || checkDiagonal('X') || checkCrossDiagonal('X');
+        boolean oWins = checkRows('O') || checkColumns('O') || checkDiagonal('O') || checkCrossDiagonal('O');
 
         // `field` is invalid if `xCount` and `oCount` differ by more than 1 or both 'X' and 'O' win
         if (Math.abs(xCount - oCount) > 1 || (xWins && oWins)) {
@@ -174,7 +221,7 @@ public class Main {
             return "X wins";
         } else if (oWins) {
             return "O wins";
-        } else if (_Count > 0) {
+        } else if (spaceCount > 0) {
             return "Game not finished";
         } else {
             return "Draw";
@@ -191,5 +238,22 @@ public class Main {
 
     private static boolean validCoordinates(int row, int col) {
         return row >= 1 && row <= 3 && col >= 1 && col <= 3;
+    }
+
+    private static char getPlayer(int turn) {
+        return turn % 2 == 0 ? 'X' : 'O';
+    }
+
+    private static boolean isGameOver(String gameStatus) {
+        switch (gameStatus) {
+            case "X wins":
+            case "O wins":
+            case "Draw":
+            case "Impossible":
+                return true;
+            case "Game not finished":
+            default:
+                return false;
+        }
     }
 }
