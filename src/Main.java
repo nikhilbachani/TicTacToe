@@ -66,9 +66,11 @@ public class Main {
         System.out.println("-------------");
         System.out.println("1. The game starts as an empty field.");
         System.out.println("2. To make a move you will need to enter coordinates.");
-        System.out.println("3. Suppose the bottom left cell has the coordinates (1, 1).");
-        System.out.println("4. And, the top right cell has the coordinates (3, 3).");
-        System.out.println("5. For reference, here's a table showing cell coordinates:");
+        System.out.println("3. The first coordinate goes from left to right and the second coordinate goes from bottom to top.");
+        System.out.println("4. The bottom left cell has the coordinates (1, 1).");
+        System.out.println("5. And, the top right cell has the coordinates (3, 3).");
+        System.out.println("6. Input coordinates as space-separated numbers (ex: 1 2) between 1 and 3.");
+        System.out.println("7. As a reference, here's a table showing cell coordinates:");
         System.out.println();
         System.out.println("(1, 3)\t(2, 3)\t(3, 3)");
         System.out.println("(1, 2)\t(2, 2)\t(3, 2)");
